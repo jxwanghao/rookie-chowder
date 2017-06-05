@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd
+  http://www.springframework.org/schema/aop   
+  http://www.springframework.org/schema/aop/spring-aop.xsd
+  http://www.springframework.org/schema/mvc
+  http://www.springframework.org/schema/mvc/spring-mvc.xsd
+  http://www.springframework.org/schema/util        
+  http://www.springframework.org/schema/util/spring-util.xsd ">
+
+	<!--通知spring使用cglib而不是jdk的来生成代理方法, AOP可以拦截到Controller,因为是拦截Controller,这句必须加在springmvc配置文件中 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<mvc:annotation-driven />
+
+	<!-- 引入属性文件 -->
+	<bean id="configProperties"
+		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="fileEncoding" value="UTF-8" />
+		<property name="locations">
+			<list>
+				<value>classpath*:*.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 防止循环引用 -->
+	<bean id="DisableCircularReferenceDetect" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<property name="staticField" value="com.alibaba.fastjson.serializer.SerializerFeature.DisableCircularReferenceDetect" />
+	</bean>
+
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<!-- 这里是否忽略掉accept header，默认就是false -->
+		<property name="ignoreAcceptHeader" value="true" />
+		<!-- 启用参数支持 -->
+		<property name="favorParameter" value="false"></property>
+		<!-- 启用扩展名支持 -->
+		<property name="favorPathExtension" value="true"></property>
+		<!-- 如果所有的mediaType都没匹配上，就会使用defaultContentType -->
+		<property name="defaultContentType" value="text/html" />
+		<property name="mediaTypes">
+			<map>
+				<entry key="json" value="application/json" />
+				<entry key="xml" value="application/xml" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape" />
+	<!-- Freemarker配置 -->
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="/WEB-INF/view/html" />
+		<property name="freemarkerVariables">
+			<map>
+				<entry key="xml_escape" value-ref="fmXmlEscape" />
+			</map>
+		</property>
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="default_encoding">UTF-8</prop>
+				<prop key="url_escaping_charset">UTF-8</prop>
+				<prop key="template_update_delay">1</prop>
+				<prop key="tag_syntax">auto_detect</prop>
+				<prop key="whitespace_stripping">true</prop>
+				<prop key="classic_compatible">true</prop>
+				<prop key="number_format">0.##########</prop>
+				<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+				<prop key="template_exception_handler">ignore</prop>
+				<prop key="object_wrapper">freemarker.template.DefaultObjectWrapper(2.3.23)</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- ContentNegotiatingViewResolver视图解析器，返回多视图 -->
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="order" value="1"></property>
+		<property name="contentNegotiationManager" ref="contentNegotiationManager" />
+		<property name="defaultViews">
+			<list>
+				<!-- json视图 -->
+				<bean class="com.alibaba.fastjson.support.spring.FastJsonJsonView">
+					<property name="extractValueFromSingleKeyModel" value="true" />
+					<property name="fastJsonConfig" ref="fastJsonConfig" />
+				</bean>
+			</list>
+		</property>
+		<property name="viewResolvers">
+			<list>
+				<!-- 视图解析器，根据视图的名称new ModelAndView(name)，在配置文件查找对应的bean配置 -->
+				<bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+
+
+				<!-- 配置freeMarker视图解析器 -->
+				<bean id="viewResolverFtl" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+					<property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView" />
+					<property name="contentType" value="text/html; charset=utf-8" />
+					<property name="cache" value="true" />
+					<property name="suffix" value=".html" />
+					<property name="order" value="0" />
+				</bean>
+
+			</list>
+		</property>
+	</bean>
+
+	<!-- 上面没匹配到则会使用这个视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/html/" />
+		<property name="suffix" value=".jsp" />
+		<property name="order" value="2" />
+	</bean>
+
+	<!-- 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 默认编码 -->
+		<property name="defaultEncoding" value="utf-8" />
+		<!-- 文件大小最大值 -->
+		<property name="maxUploadSize" value="10485760000" />
+		<!-- 内存中的最大值 -->
+		<property name="maxInMemorySize" value="40960" />
+	</bean>
+
+	<!-- restTemplate -->
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<property name="messageConverters" ref="messageConverters">
+		</property>
+	</bean>
+
+	<!-- 先走默认的web.xml配置的servlet，没有的话才找对应controller,相当于处理配置静态资源，这种方式效率相对比较低,如果DispatcherServlet拦截类似 *.do 这种格式的URL，就不存在访问不到静态资源的问题,静态资源访问详见web.xml -->
+	<!--<mvc:default-servlet-handler />-->
+
+</beans>
+
+
+
