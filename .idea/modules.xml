@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rookie-service/rookie-service.iml" filepath="$PROJECT_DIR$/rookie-service/rookie-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/rookiechowder.iml" filepath="$PROJECT_DIR$/rookiechowder.iml" />
-      <module fileurl="file://$PROJECT_DIR$/web-app/web-app.iml" filepath="$PROJECT_DIR$/web-app/web-app.iml" />
     </modules>
   </component>
 </project>

@@ -23,14 +23,13 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="common" />
-        <module name="rookie-service" />
-        <module name="web-app" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.7">
       <module name="common" target="1.7" />
-      <module name="rookie-service" target="1.7" />
-      <module name="rookiechowder" target="1.7" />
+      <module name="rookie-common" target="1.5" />
+      <module name="rookie-service" target="1.5" />
+      <module name="rookiechowder" target="1.5" />
       <module name="web-app" target="1.7" />
     </bytecodeTargetLevel>
   </component>

@@ -11,7 +11,7 @@
             <element id="module-output" name="rookie-service" />
           </element>
           <element id="archive" name="common-1.0-SNAPSHOT.jar">
-            <element id="module-output" name="common" />
+            <element id="module-output" name="rookie-common" />
           </element>
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.21" />
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-log4j12:1.7.21" />
