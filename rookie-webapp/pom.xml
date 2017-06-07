@@ -11,5 +11,56 @@
 
     <artifactId>rookie-webapp</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.jxwanghao</groupId>
+            <artifactId>rookie-framework</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <fork>true</fork>
+                    <skip>true</skip>
+                    <!-- path-to-javac -->
+                    <!-- <executable/> -->
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerVersion>${java.version}</compilerVersion>
+                </configuration>
+            </plugin>
+
+            <!-- assembly -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-war</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>false</skipAssembly>
+                            <descriptors>
+                                <descriptor>war.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>

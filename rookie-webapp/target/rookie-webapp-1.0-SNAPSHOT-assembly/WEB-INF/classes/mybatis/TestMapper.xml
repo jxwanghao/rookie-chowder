@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yyfax.oss.module.ac.mapper.LoanInfoMapper">
+    <sql id="publicColumn">
+        id,
+        loan_id,
+        loan_no,
+        real_name,
+        id_card,
+        pool_id,
+        summary,
+        loan_amount,
+        curr_value,
+        curr_capital,
+        year_rate,
+        invest_term,
+        unit_term,
+        period_count,
+        period_no,
+        package_state,
+        loan_state,
+        repay_way,
+        last_repay_day,
+        next_repay_day,
+        loan_time,
+        expiry_day,
+        create_time,
+        update_time
+    </sql>
+
+    <select id="queryForList" parameterType="com.yyfax.oss.module.ac.model.vo.QueryLoanInfoVO"
+            resultType="com.yyfax.oss.module.ac.model.vo.QueryLoanInfoVO">
+        select
+        <include refid="publicColumn" />
+        from loan_info
+        <where>
+            <if test="loanNo != null and loanNo !=''"> and loan_no= #{loanNo} </if>
+            <if test="realName != null and realName !=''"> and real_name= #{realName} </if>
+            <if test="packageState != null "> and package_state= #{packageState} </if>
+        </where>
+    </select>
+
+    <select id="queryById" parameterType="java.lang.Integer"
+            resultType="com.yyfax.oss.module.ac.model.vo.QueryLoanInfoVO">
+        select
+        <include refid="publicColumn" />
+        from loan_info
+        <where>
+            <if test="value != null"> and id = #{value} </if>
+        </where>
+    </select>
+
+    <select id="selectByLoanId" parameterType="String"
+            resultType="com.yyfax.oss.module.ac.model.po.LoanInfoPO">
+        select
+        <include refid="publicColumn" />
+        from loan_info
+        where loan_id = #{value}
+    </select>
+
+    <select id="selectCount" resultType="com.yyfax.oss.module.ac.model.vo.QueryLoanInfoVO">
+        select
+        <include refid="publicColumn" />
+        from loan_info
+        <where>
+            <if test="state != null"> and package_state = #{state} </if>
+        </where>
+        and loan_id in
+        <foreach item="item" index="index" collection="loanId" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="selectByLoanIdArray" resultType="com.yyfax.oss.module.ac.model.vo.QueryLoanInfoVO">
+        select
+        <include refid="publicColumn" />
+        from loan_info
+        where loan_id in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+
+    <!-- 保存借款信息 @author TangShuli date 2017/04/25 -->
+    <insert id="insertLoanInfo" parameterType="com.yyfax.oss.module.ac.model.vo.EditApiLoanInfoVO">
+        insert into yyfax_ac.loan_info(
+        loan_id,
+        loan_no,
+        real_name,
+        id_card,
+        pool_id,
+        <if test="summary!=null">summary,</if>
+        loan_amount,
+        curr_value,
+        curr_capital,
+        year_rate,
+        invest_term,
+        unit_term,
+        period_count,
+        package_state,
+        repay_way,
+        next_repay_day,
+        loan_time,
+        expiry_day,
+        create_time
+        ) values(
+        #{loanId},
+        #{loanNo},
+        #{realName},
+        #{idCard},
+        #{poolId},
+        <if test="summary!=null">#{summary},</if>
+        #{loanAmount},
+        #{loanAmount},
+        #{loanAmount},
+        #{yearRate},
+        #{investTerm},
+        #{unitTerm},
+        #{periodCount},
+        #{packageState},
+        #{repayWay},
+        #{nextRepayDay},
+        #{loanTime},
+        #{expiryDay},
+        #{createTime}
+        )
+
+        <selectKey resultType="java.lang.Integer" keyProperty="id"
+                   order="AFTER"> SELECT @@IDENTITY</selectKey>
+    </insert>
+
+    <update id="updateLonaInfo">
+        update loan_info
+        <set>
+            package_state = #{state},
+            update_time=now()
+        </set>
+        where id=#{id} and package_state=#{oldState}
+    </update>
+
+    <!-- 更新资金池业务资金 @author TangShuli date 2017/04/26 -->
+    <!-- <update id="modifyCapitalPool" parameterType="com.yyfax.oss.module.ac.model.vo.EditApiCapitalPoolInfoVO">
+        update yyfax_ac.capital_pool <set> <if test="poolAmount!=null">pool_amount=pool_amount-#{poolAmount},</if>
+        <if test="remark!=null">remark=#{remark},</if> update_time=now() </set> where
+        pool_id=#{poolId} </update> -->
+
+    <!-- 更新每日剩余债权价值 @author TangShuli date 2017/04/28 -->
+    <update id="updateClaimsValue" parameterType="com.yyfax.oss.module.ac.model.po.LoanInfoPO">
+        update
+        yyfax_ac.loan_info set curr_value=#{currValue}, update_time=#{updateTime}
+        where loan_no=#{loanNo}
+    </update>
+
+    <!-- 查找还款中的借款信息 @author TangShuli date 2017/05/02 -->
+    <select id="selectRepayMentLoanInfo" parameterType="java.lang.Integer"
+            resultType="com.yyfax.oss.module.ac.model.vo.QueryLoanInfoVO">
+        select
+        <include refid="publicColumn" />
+        from yyfax_ac.loan_info
+        <where>
+            loan_state= #{value}
+        </where>
+    </select>
+
+    <update id="batchUpdateByLoanIds">
+        update loan_info
+        <set>
+            package_state = #{state},
+            package_id=#{packageId},
+            update_time=now()
+        </set>
+        where package_state=#{oldState} and loan_id IN
+        <foreach collection="loanIds" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
+    <!-- 还款更新借款标信息 @author TangShuli date 2017/05/04 -->
+    <update id="updateLoanInfoByLoanNo" parameterType="com.yyfax.oss.module.ac.model.vo.EditApiLoanInfoVO">
+        update yyfax_ac.loan_info
+        <set>
+            curr_capital=curr_capital-#{currCapital},
+            curr_value=#{currValue},
+            last_repay_day=#{lastRepayDay},
+            next_repay_day=#{nextRepayDay},
+            <if test="loanState!= null"> loan_state = #{loanState}, </if>
+            update_time=#{updateTime}
+        </set>
+        where loan_no=#{loanNo}
+    </update>
+
+    <update id="batchUpdateByIds">
+        update loan_info
+        <set>
+            package_state = #{state},
+            update_time=now()
+        </set>
+        where package_state=#{oldState} and id IN
+        <foreach collection="id" index="index" item="item" separator=","
+                 open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 查询放款时间在某段时间内的标信息 @author TangShuli date 2017/05/04 -->
+    <select id="selectByLoanTime" resultType="com.yyfax.oss.module.ac.model.vo.QueryLoanInfoVO">
+        select
+        <include refid="publicColumn" />
+        from yyfax_ac.loan_info
+        where loan_time between #{startTime} and #{endTime}
+    </select>
+
+    <!-- 更新借据号查询标信息 @author TangShuli date 2017/05/04 -->
+    <select id="selectByLoanNo" parameterType="java.lang.String"
+            resultType="com.yyfax.oss.module.ac.model.vo.QueryLoanInfoVO">
+        select
+        <include refid="publicColumn" />
+        from yyfax_ac.loan_info
+        where loan_no=#{loanNo}
+    </select>
+
+</mapper>

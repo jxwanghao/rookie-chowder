@@ -17,6 +17,8 @@
         <property name="url" value="${ac.url}" />
         <property name="username" value="${ac.username}" />
         <property name="password" value="${ac.password}" />
+        <property name="connectionProperties"
+                  value="config.decrypt=true;config.decrypt.key=${ac.publicKey}" />
 
         <!-- 配置初始化大小、最小、最大 -->
         <property name="initialSize" value="1" />

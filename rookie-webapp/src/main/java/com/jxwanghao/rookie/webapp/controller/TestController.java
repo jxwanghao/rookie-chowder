@@ -4,7 +4,6 @@ import com.jxwanghao.rookie.webapp.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author wanghao
@@ -17,9 +16,13 @@ public class TestController {
 	@Autowired
 	private TestService testService;
 
-	@RequestMapping(value ="/hello")
-	public ModelAndView hello() {
-		System.out.println("Test");
-		return new ModelAndView("html/index");
+	@RequestMapping("/")
+	public String homepage() {
+		return "index";
+	}
+
+	@RequestMapping(value = "/test")
+	public void test() {
+		System.out.println("test, test, test");
 	}
 }

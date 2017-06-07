@@ -12,16 +12,11 @@
             http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <!-- 公钥,用于解密,放到最顶部设置 -->
-        <property name="publicKey" value="${ac.publicKey}" />
-
         <property name="driverClassName" value="${ac.driver}" />
         <!-- 基本属性 url、user、password -->
         <property name="url" value="${ac.url}" />
         <property name="username" value="${ac.username}" />
         <property name="password" value="${ac.password}" />
-        <property name="connectionProperties"
-                  value="config.decrypt=true;config.decrypt.key=${ac.publicKey}" />
 
         <!-- 配置初始化大小、最小、最大 -->
         <property name="initialSize" value="1" />
