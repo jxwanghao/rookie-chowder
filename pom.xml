@@ -480,6 +480,13 @@
             <version>3.16</version>
         </dependency>
 
+        <!-- cache begin -->
+        <!-- ehcache -->
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
